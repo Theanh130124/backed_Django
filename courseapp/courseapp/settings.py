@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'drf_yasg',
     'cloudinary',
     'oauth2_provider',
+    'corsheaders',
 ]
 #Cloud
 import cloudinary
@@ -61,10 +62,11 @@ cloudinary.config(
 REST_FRAMEWORK = {
 'DEFAULT_AUTHENTICATION_CLASSES': (
     'oauth2_provider.contrib.rest_framework.OAuth2Authentication',
+
 )
 }
 
-
+CORS_ALLOW_ALL_ORIGINS = True
 import pymysql
 pymysql.install_as_MySQLdb()
 CKEDITOR_UPLOAD_PATH = "ckeditor/images/"
@@ -77,6 +79,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'debug_toolbar.middleware.DebugToolbarMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
 ]
 INTERNAL_IPS = [
     # ...
