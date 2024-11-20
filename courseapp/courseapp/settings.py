@@ -43,7 +43,28 @@ INSTALLED_APPS = [
     'ckeditor',
     'ckeditor_uploader',
     'debug_toolbar',
+    'rest_framework',
+    'drf_yasg',
+    'cloudinary',
+    'oauth2_provider',
 ]
+#Cloud
+import cloudinary
+
+cloudinary.config(
+    cloud_name="dxiawzgnz",
+    api_key="916324835836949",
+    api_secret="it9HP_2TUJjIHLSshkbm0BYA5qE",
+    secure=True,
+)
+#Chung thuc
+REST_FRAMEWORK = {
+'DEFAULT_AUTHENTICATION_CLASSES': (
+    'oauth2_provider.contrib.rest_framework.OAuth2Authentication',
+)
+}
+
+
 import pymysql
 pymysql.install_as_MySQLdb()
 CKEDITOR_UPLOAD_PATH = "ckeditor/images/"

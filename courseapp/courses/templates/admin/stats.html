@@ -1,0 +1,55 @@
+{% extends 'admin/base_site.html'%}
+{%block content %}
+
+<h1>THỐNG KÊ THÔNG TIN CÁC KHOÁ HỌC</h1>
+<!--Truyền đúng tên bên admin.py-->
+<!--{{course_count}}-->
+<h2>Các ngành học </h2>
+<ul>
+<!--    Các cate có count course-->
+{% for c in course_count %}
+    <li><strong>{{ c.name }}</strong> có {{c.count}} course </li>
+
+{% endfor %}
+
+</ul>
+<canvas id="myChart"></canvas>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+
+    let labels = [];
+    let values =[];
+    {% for c in course_count %}
+    values.push({{c.count}})
+    labels.push('{{c.name}}')
+    {% endfor %}
+
+    window.onload = () => {
+   const ctx = document.getElementById('myChart');
+
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: '# Số lượng',
+        data: values,
+        borderWidth: 1,
+         backgroundColor: [
+      'rgb(255, 99, 132)',
+      'rgb(54, 162, 235)',
+      'rgb(255, 205, 86)'
+    ],
+      }]
+    },
+    options: {
+      scales: {
+        y: {
+          beginAtZero: true
+        }
+      }
+    }
+  })
+    }
+</script>
+{%endblock %}

@@ -4,7 +4,16 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="3f2e2414-03b6-426a-afa5-6af0a12a8820" name="Changes" comment="" />
+    <list default="true" id="3f2e2414-03b6-426a-afa5-6af0a12a8820" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/courseapp/courses/dao.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/backendDjango.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/backendDjango.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/courseapp/courseapp/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/courseapp/courseapp/urls.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/courseapp/courses/admin.py" beforeDir="false" afterPath="$PROJECT_DIR$/courseapp/courses/admin.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/courseapp/courses/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/courseapp/courses/models.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/courseapp/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -14,15 +23,16 @@
     <option name="RECENT_TEMPLATES">
       <list>
         <option value="Unnamed" />
+        <option value="Python Script" />
       </list>
     </option>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="ProjectColorInfo"><![CDATA[{
-  "associatedIndex": 2
-}]]></component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 2
+}</component>
   <component name="ProjectId" id="2p1Npto2YYgXjIdhBkUIxPBrqZd" />
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectViewState">
@@ -33,9 +43,17 @@
   "keyToString": {
     "Python.manage.executor": "Run",
     "RunOnceActivity.ShowReadmeOnStart": "true",
-    "git-widget-placeholder": "master"
+    "git-widget-placeholder": "master",
+    "last_opened_file_path": "D:/CCNLTHD/backend_Django/courseapp",
+    "settings.editor.selected.configurable": "com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable"
   }
 }]]></component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="D:\CCNLTHD\backend_Django\courseapp" />
+      <recent name="D:\CCNLTHD\backend_Django" />
+    </key>
+  </component>
   <component name="RunManager">
     <configuration name="manage" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="backendDjango" />

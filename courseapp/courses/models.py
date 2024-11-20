@@ -1,12 +1,16 @@
+from tkinter.constants import CASCADE
+
 from django.db import models
 from django.contrib.auth.models import  AbstractUser
 from ckeditor.fields import RichTextField
+from cloudinary.models import CloudinaryField
 
 
 # Create your models here.
 
 class User(AbstractUser):
-    pass
+    #Thêm mới 1 truong vào phải để null =True -> avatar này đc bổ sung vào sau khi bảng đã c dữu liệu rồi
+    avatar = CloudinaryField('avatar' , null=True)
 
 class BaseModel(models.Model):
     # Thêm null= True vì do thêm BaseModel sau nên các cột Category đã tạo rồi yêu cầu thêm các cột này
@@ -29,7 +33,7 @@ class Course(BaseModel):
     description = RichTextField()
     image = models.ImageField(upload_to="courses/%Y/%m")
     # Category xóa -> thì bị xóa theo
-    category = models.ForeignKey(Category,on_delete=models.CASCADE)
+    category = models.ForeignKey(Category,on_delete=models.CASCADE , related_query_name ='course')
     tags = models.ManyToManyField('Tag')
     def __str__(self):
         return self.subject
@@ -54,3 +58,22 @@ class Tag(BaseModel):
 
     def __str__(self):
         return self.name
+
+class Interraction(BaseModel):
+    user = models.ForeignKey(User , on_delete=models.CASCADE, null=False)
+    lesson = models.ForeignKey(Lesson,on_delete=models.CASCADE, null=False)
+
+    class Meta:
+        abstract = True
+
+class Comment(Interraction):
+    content = models.CharField(max_length=255, null=False)
+
+class Like(Interraction):
+    active = models.BooleanField(default=True)
+    class Meta:
+        # Mỗi người dùng chỉ tính 1 lượt like cho lessson
+        unique_together = ('user', 'lesson')
+
+class Rating(Interraction):
+    rate = models.SmallIntegerField(default=0)
