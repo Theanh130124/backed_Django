@@ -2,6 +2,8 @@ from importlib.resources import contents
 from pickle import FALSE
 
 from rest_framework.response import Response
+from unicodedata import category
+from rest_framework.permissions import AllowAny
 from courses.models import Category, Course, Lesson, User, Comment , Like
 from courses import serializers , paginators
 from rest_framework import viewsets, generics, status , parsers , permissions
@@ -19,7 +21,8 @@ from courses.perms import OwnerAuthenticated
 # Create your views here.
 class CategoryViewSet(viewsets.ViewSet, generics.ListAPIView):
     queryset = Category.objects.all() #Lọc tất cả danh mục
-    serializer_class = serializers.Category
+    serializer_class = serializers.CategorySerializer
+
 
 
 
@@ -55,36 +58,60 @@ class CourseViewSet(viewsets.ViewSet , generics.ListAPIView):
 #Do đường dẫn là lesssons/{lessons_id} -> nên tách làm viewset riêng không như ở trên
 #Tạo ViewSet mới xong nhớ qua url khai báo -
 #Class này chỉ lấy ra 1 đối tượng theo id
-class LessonViewSet(viewsets.ViewSet , generics.RetrieveAPIView):
+# class LessonViewSet(viewsets.ViewSet , generics.RetrieveAPIView):
+#     queryset = Lesson.objects.filter(active=True).all()
+#     serializers_class = serializers.LessonDetailSerializer
+#     #Phải chung thuc mới vào đc API
+#     permission_classes =  [AllowAny]
+#
+#     def get_permissions(self):
+#         if self.action in ['add_comment', 'like']:
+#             return  [permissions.IsAuthenticated()]
+#         return self.permission_classes
+#     #Thêm bình luận vào bài học API có {{lesson_id}} nên có detail =True và có pk
+#     @action(methods=['post'],url_path='comment' ,detail=True)
+#     def add_comment(self, request , pk):
+#         # Chỉ user đc chứng thực mới đc bình luạn  / ở bài học nào / nội dung comment
+#         request.data
+#         c = Comment.objects.create(user = request.user, lesson =self.get_object(), context=request.data.get('contents'))
+#
+#         return Response(serializers.CourseSerializer(c).data , status=status.HTTP_201_CREATED)
+#
+#     #Like nằm trong lessson
+#     @action(methods=['post'], url_path='like', detail=True)
+#     def like(self , request , pk ):
+#         like, created =  Like.objects.get_or_create(user = request.user ,lesson =self.get_object())
+#         #Lần đầu tiền like còn ở dưới này đã like rồi thì created là false không tính like nữa -> mà là unlike
+#         if not created:
+#             like.active = not like.active
+#             like.save()
+#
+#         return  Response(serializers.LessonDetailSerializer(self.get_object(), context={'request':request}).data,status=status.HTTP_200_OK)
+class LessonViewSet(viewsets.ViewSet, generics.RetrieveAPIView):
     queryset = Lesson.objects.filter(active=True).all()
-    serializers_class = serializers.LessonDetailSerializer
-    #Phải chung thuc mới vào đc API
-    permission_classes =  [permissions.AllowAny]
+    serializer_class = serializers.LessonDetailSerializer
+    permission_classes = [permissions.AllowAny]
 
     def get_permissions(self):
         if self.action in ['add_comment', 'like']:
-            return  [permissions.IsAuthenticated()]
+            return [permissions.IsAuthenticated()]
+
         return self.permission_classes
-    #Thêm bình luận vào bài học API có {{lesson_id}} nên có detail =True và có pk
-    @action(methods=['post'],url_path='comment' ,detail=True)
-    def add_comment(self, request , pk):
-        # Chỉ user đc chứng thực mới đc bình luạn  / ở bài học nào / nội dung comment
-        request.data
-        c = Comment.objects.create(user = request.user, lesson =self.get_object(), context=request.data.get('contents'))
 
-        return Response(serializers.CourseSerializer(c).data , status=status.HTTP_201_CREATED)
+    @action(methods=['post'], url_path='comments', detail=True)
+    def add_comment(self, request, pk):
+        c = Comment.objects.create(user=request.user, lesson=self.get_object(), content=request.data.get('content'))
 
-    #Like nằm trong lessson
+        return Response(serializers.CommentSerializer(c).data, status=status.HTTP_201_CREATED)
+
     @action(methods=['post'], url_path='like', detail=True)
-    def like(self , request , pk ):
-        like, created =  Like.objects.get_or_create(user = request.user ,lesson =self.get_object())
-        #Lần đầu tiền like còn ở dưới này đã like rồi thì created là false không tính like nữa -> mà là unlike
+    def like(self, request, pk):
+        like, created = Like.objects.get_or_create(user=request.user, lesson=self.get_object())
         if not created:
             like.active = not like.active
             like.save()
 
-        return  Response(serializers.LessonDetailSerializer(self.get_object(), context={'request':request}).data,status=status.HTTP_200_OK)
-
+        return Response(serializers.LessonDetailSerializer(self.get_object(), context={'request': request}).data, status=status.HTTP_200_OK)
 
 
 class CommentViewSet(viewsets.ViewSet , generics.DestroyAPIView ,generics.UpdateAPIView) :
