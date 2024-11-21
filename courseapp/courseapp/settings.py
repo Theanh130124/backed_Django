@@ -25,8 +25,12 @@ SECRET_KEY = 'django-insecure-+2bwy*_ra%+4=zei&*3pj^a&-=-u9lzruohm=&u+d0zs*d(zas
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
+#Change
+import os
+ALLOWED_HOSTS = ['theanh1301200004.pythonanywhere.com']
+STATIC_ROOT= os.path.join(BASE_DIR, "static")
+STATIC_URL = '/static/'
 
-ALLOWED_HOSTS = []
 
 
 # Application definition
@@ -47,8 +51,10 @@ INSTALLED_APPS = [
     'drf_yasg',
     'cloudinary',
     'oauth2_provider',
-    'corsheaders',
+
 ]
+
+
 #Cloud
 import cloudinary
 
@@ -66,7 +72,6 @@ REST_FRAMEWORK = {
 )
 }
 
-CORS_ALLOW_ALL_ORIGINS = True
 import pymysql
 pymysql.install_as_MySQLdb()
 CKEDITOR_UPLOAD_PATH = "ckeditor/images/"
@@ -79,8 +84,8 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'debug_toolbar.middleware.DebugToolbarMiddleware',
-    'corsheaders.middleware.CorsMiddleware',
-]
+    ]
+
 INTERNAL_IPS = [
     # ...
     "127.0.0.1",
@@ -114,10 +119,10 @@ WSGI_APPLICATION = 'courseapp.wsgi.application'
 DATABASES = {
 'default': {
 'ENGINE': 'django.db.backends.mysql',
-'NAME': 'coursedb',
-'USER': 'root',
-'PASSWORD': '123456',
-'HOST': '' # mặc định localhost
+'NAME': 'theanh1301200004$coursedb',
+'USER': 'theanh1301200004',
+'PASSWORD': 'Theanh@123',
+'HOST': 'theanh1301200004.mysql.pythonanywhere-services.com' # mặc định localhost
 }
 }
 
