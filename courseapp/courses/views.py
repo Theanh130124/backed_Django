@@ -12,6 +12,7 @@ from courses.serializers import LessonSerializer
 from courses.perms import OwnerAuthenticated
 
 
+
 #View trong Django xử lý logic chính của ứng dụng bằng cách:
 
 # Tiếp nhận và xử lý request từ người dùng (GET, POST, PUT, DELETE, v.v.).
@@ -89,7 +90,7 @@ class CourseViewSet(viewsets.ViewSet , generics.ListAPIView):
 #         return  Response(serializers.LessonDetailSerializer(self.get_object(), context={'request':request}).data,status=status.HTTP_200_OK)
 class LessonViewSet(viewsets.ViewSet, generics.RetrieveAPIView):
     queryset = Lesson.objects.prefetch_related('tags').filter(active=True)
-    serializer_class = serializers.LessonDetailsSerializer
+    serializer_class = serializers.LessonDetailSerializer
 
     def get_serializer_class(self):
         if self.request.user.is_authenticated:
@@ -187,6 +188,6 @@ class UserViewSet(viewsets.ViewSet, generics.CreateAPIView):
 class CommentViewSet(viewsets.ViewSet, generics.DestroyAPIView, generics.UpdateAPIView):
     queryset = Comment.objects.all()
     serializer_class = serializers.CommentSerializer
-    permission_classes = [perms.CommentOwner]
+    permission_classes = OwnerAuthenticated
 
 
