@@ -13,6 +13,7 @@ from courses.perms import OwnerAuthenticated
 
 
 
+
 #View trong Django xử lý logic chính của ứng dụng bằng cách:
 
 # Tiếp nhận và xử lý request từ người dùng (GET, POST, PUT, DELETE, v.v.).
@@ -27,34 +28,62 @@ class CategoryViewSet(viewsets.ViewSet, generics.ListAPIView):
 
 
 
-class CourseViewSet(viewsets.ViewSet , generics.ListAPIView):
-    queryset =  Course.objects.filter(active=True).all() #oojojc danh sách khóa học
-    serializer_class =serializers.CourseSerializer
+# class CourseViewSet(viewsets.ViewSet , generics.ListAPIView):
+#     queryset =  Course.objects.filter(active=True).all() #oojojc danh sách khóa học
+#     serializer_class =serializers.CourseSerializer
+#     pagination_class = paginators.CoursePaginator
+
+#     #Trước khi queryset trả về thì lấy ra để làm chức năng search
+#     def get_queryset(self):
+#         queries = self.queryset #Lấy trên thanh tìm kiếm
+#         # (hay còn gọi là query string parameters) là thông tin được truyền qua URL sau dấu hỏi ?. Chúng thường được sử dụng để gửi dữ liệu từ client (trình duyệt) tới server, ví dụ như các tham số tìm kiếm, phân trang, lọc,
+#         q = self.request.query_params.get("q")
+#         # Nếu co truyền thì chặn lại thêm subject của mình vào
+#         if q:
+#             queries  =queries.filter(subject__icontains=q)
+
+#         return queries
+
+#     #Nếu trong đường dẫn không có {course_id} thì không để pk và detail = True
+#     #Lấy danh sách bài học thuộc 1 khóa học có pk = ?
+#     # Nếu k có url_path thì nó sẽ lấy tên get_lessons lên đường dẫn
+#     @action(methods=['get'],detail=True , url_path='lesson')
+#     def get_lessons(self ,request, pk ): #Có get_object thì đã lấy đối tượng khóa học theo id rồi / lesson_set nó tự tạo do có khóa ngoại
+#         lessons = self.get_object().lesson_set.filter(active=True).all()
+#         serializers_class = serializers.LessonSerializer
+# # Nhớ import Response -> Do trả ra danh sách nên many = True
+
+#         #context = {'request'} để cho trường img được hiêện -> vì ham tu làm
+#         return Response(serializers.LessonSerializer(lessons , many =True , context={'request':request}).data ,status=status.HTTP_200_OK)
+
+class CourseViewSet(viewsets.ViewSet, generics.ListAPIView):
+    queryset = Course.objects.filter(active=True)
+    serializer_class = serializers.CourseSerializer
     pagination_class = paginators.CoursePaginator
 
-    #Trước khi queryset trả về thì lấy ra để làm chức năng search
     def get_queryset(self):
-        queries = self.queryset #Lấy trên thanh tìm kiếm
-        # (hay còn gọi là query string parameters) là thông tin được truyền qua URL sau dấu hỏi ?. Chúng thường được sử dụng để gửi dữ liệu từ client (trình duyệt) tới server, ví dụ như các tham số tìm kiếm, phân trang, lọc,
-        q = self.request.query_params.get("q")
-        # Nếu co truyền thì chặn lại thêm subject của mình vào
+        queryset = self.queryset
+
+        if self.action.__eq__('list'):
+            q = self.request.query_params.get('q')
+            if q:
+                queryset = queryset.filter(name__icontains=q)
+
+            cate_id = self.request.query_params.get('category_id')
+            if cate_id:
+                queryset = queryset.filter(category_id=cate_id)
+
+        return queryset
+
+    @action(methods=['get'], url_path='lessons', detail=True)
+    def get_lessons(self, request, pk):
+        lessons = self.get_object().lesson_set.filter(active=True)
+
+        q = request.query_params.get('q')
         if q:
-            queries  =queries.filter(subject__icontains=q)
+            lessons = lessons.filter(subject__icontains=q)
 
-        return queries
-
-    #Nếu trong đường dẫn không có {course_id} thì không để pk và detail = True
-    #Lấy danh sách bài học thuộc 1 khóa học có pk = ?
-    # Nếu k có url_path thì nó sẽ lấy tên get_lessons lên đường dẫn
-    @action(methods=['get'],detail=True , url_path='lesson')
-    def get_lessons(self ,request, pk ): #Có get_object thì đã lấy đối tượng khóa học theo id rồi / lesson_set nó tự tạo do có khóa ngoại
-        lessons = self.get_object().lesson_set.filter(active=True).all()
-        serializers_class = serializers.LessonSerializer
-#Nhớ import Response -> Do trả ra danh sách nên many = True
-
-        #context = {'request'} để cho trường img được hiêện -> vì ham tu làm
         return Response(serializers.LessonSerializer(lessons , many =True , context={'request':request}).data ,status=status.HTTP_200_OK)
-
 
 #Do đường dẫn là lesssons/{lessons_id} -> nên tách làm viewset riêng không như ở trên
 #Tạo ViewSet mới xong nhớ qua url khai báo -
