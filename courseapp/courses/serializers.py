@@ -10,10 +10,37 @@ class CategorySerializer(serializers.ModelSerializer):
         fields = ['id','name']
 
 
+class ItemSerializer(serializers.ModelSerializer):
+    def to_representation(self, instance):
+        req = super().to_representation(instance)
+        req['image'] = instance.image.url
+
+        return req
+
+class LessonSerializer(ItemSerializer):
+
+    class Meta:
+        model = Lesson
+        fields = ['id', 'subject', 'image', 'created_date']
+
+
 class TagSerializer(serializers.ModelSerializer):
     class Meta:
         model = Tag
         fields =['id','name']
+
+
+class AuthenticatedLessonDetailsSerializer(LessonDetailsSerializer):
+    liked = serializers.SerializerMethodField()
+
+    def get_liked(self, lesson):
+        request = self.context.get('request')
+        if request:
+            return lesson.like_set.filter(user=request.user, active=True).exists()
+
+    class Meta:
+        model = LessonDetailsSerializer.Meta.model
+        fields = LessonDetailsSerializer.Meta.fields + ['liked']
 
 #Gom nhóm những thằng có chung thuộc tính :
 class BaseSerializer(serializers.ModelSerializer):
