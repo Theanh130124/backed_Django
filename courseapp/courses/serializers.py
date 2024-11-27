@@ -17,11 +17,7 @@ class ItemSerializer(serializers.ModelSerializer):
 
         return req
 
-class LessonSerializer(ItemSerializer):
 
-    class Meta:
-        model = Lesson
-        fields = ['id', 'subject', 'image', 'created_date']
 
 
 class TagSerializer(serializers.ModelSerializer):
@@ -30,17 +26,7 @@ class TagSerializer(serializers.ModelSerializer):
         fields =['id','name']
 
 
-class AuthenticatedLessonDetailsSerializer(LessonDetailsSerializer):
-    liked = serializers.SerializerMethodField()
 
-    def get_liked(self, lesson):
-        request = self.context.get('request')
-        if request:
-            return lesson.like_set.filter(user=request.user, active=True).exists()
-
-    class Meta:
-        model = LessonDetailsSerializer.Meta.model
-        fields = LessonDetailsSerializer.Meta.fields + ['liked']
 
 #Gom nhóm những thằng có chung thuộc tính :
 class BaseSerializer(serializers.ModelSerializer):
@@ -83,6 +69,16 @@ class LessonDetailSerializer(LessonSerializer):
         model = LessonSerializer.Meta.model
         fields = LessonSerializer.Meta.fields + ['liked']
 
+class AuthenticatedLessonDetailsSerializer(LessonDetailSerializer):
+    liked = serializers.SerializerMethodField()
+
+    def get_liked(self, lesson):
+        request = self.context.get('request')
+        if request:
+            return lesson.like_set.filter(user=request.user, active=True).exists()
+    class Meta:
+        model = LessonDetailSerializer.Meta.model
+        fields = LessonDetailSerializer.Meta.fields + ['liked']
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
