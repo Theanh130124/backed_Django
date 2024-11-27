@@ -88,31 +88,50 @@ class CourseViewSet(viewsets.ViewSet , generics.ListAPIView):
 #
 #         return  Response(serializers.LessonDetailSerializer(self.get_object(), context={'request':request}).data,status=status.HTTP_200_OK)
 class LessonViewSet(viewsets.ViewSet, generics.RetrieveAPIView):
-    queryset = Lesson.objects.filter(active=True).all()
-    serializer_class = serializers.LessonDetailSerializer
-    permission_classes = [permissions.AllowAny]
+    queryset = Lesson.objects.prefetch_related('tags').filter(active=True)
+    serializer_class = serializers.LessonDetailsSerializer
+
+    def get_serializer_class(self):
+        if self.request.user.is_authenticated:
+            return serializers.AuthenticatedLessonDetailsSerializer
+
+        return self.serializer_class
 
     def get_permissions(self):
         if self.action in ['add_comment', 'like']:
             return [permissions.IsAuthenticated()]
 
-        return self.permission_classes
+        return [permissions.AllowAny()]
+
+    @action(methods=['get'], url_path='comments', detail=True)
+    def get_comments(self, request, pk):
+        comments = self.get_object().comment_set.select_related('user').all()
+
+        paginator = paginators.CommentPaginator()
+        page = paginator.paginate_queryset(comments, request)
+        if page is not None:
+            serializer = serializers.CommentSerializer(page, many=True)
+            return paginator.get_paginated_response(serializer.data)
+
+        return Response(serializers.CommentSerializer(comments, many=True).data,
+                        status=status.HTTP_200_OK)
 
     @action(methods=['post'], url_path='comments', detail=True)
     def add_comment(self, request, pk):
-        c = Comment.objects.create(user=request.user, lesson=self.get_object(), content=request.data.get('content'))
+        c = self.get_object().comment_set.create(user=request.user, content=request.data.get('content'))
 
-        return Response(serializers.CommentSerializer(c).data, status=status.HTTP_201_CREATED)
+        return Response(serializers.CommentSerializer(c).data,
+                        status=status.HTTP_201_CREATED)
 
     @action(methods=['post'], url_path='like', detail=True)
     def like(self, request, pk):
-        like, created = Like.objects.get_or_create(user=request.user, lesson=self.get_object())
+        li, created = Like.objects.get_or_create(lesson=self.get_object(), user=request.user)
+
         if not created:
-            like.active = not like.active
-            like.save()
+            li.active = not li.active
+            li.save()
 
-        return Response(serializers.LessonDetailSerializer(self.get_object(), context={'request': request}).data, status=status.HTTP_200_OK)
-
+        return Response(serializers.AuthenticatedLessonDetailsSerializer(self.get_object()).data)
 
 class CommentViewSet(viewsets.ViewSet , generics.DestroyAPIView ,generics.UpdateAPIView) :
     queryset =  Comment.objects.all()
@@ -123,26 +142,51 @@ class CommentViewSet(viewsets.ViewSet , generics.DestroyAPIView ,generics.Update
 
 
 #Sau khi đã tạo serializer
-class UserViewSet(viewsets.ViewSet, generics.CreateAPIView):
-    queryset =  User.objects.filter(is_active =True).all()
-    serializer_class = serializers.UserSerializer
-    # Bật upload lên cloudinary
-    parsers_classes = [parsers.MultiPartParser]
+# class UserViewSet(viewsets.ViewSet, generics.CreateAPIView):
+#     queryset =  User.objects.filter(is_active =True).all()
+#     serializer_class = serializers.UserSerializer
+#     # Bật upload lên cloudinary
+#     parsers_classes = [parsers.MultiPartParser]
 
-#Chỉ gọi APi này khi được chứng thực rồi
+# #Chỉ gọi APi này khi được chứng thực rồi
+#     def get_permissions(self):
+#         if self.action.__eq__('current_user'):
+#             return  [permissions.IsAuthenticated()]
+
+#         return [permissions.AllowAny()]
+
+
+# #Không gửi id gì lên cả nên k có detail
+#     @action(methods=['get'], url_name='current_user',detail=False)
+#     # request là đối tượng đã đc chứng thực
+#     def current_user(self,request):
+#         request.user
+#         return  Response(serializers.UserSerializer(request.user).data)
+class UserViewSet(viewsets.ViewSet, generics.CreateAPIView):
+    queryset = User.objects.filter(is_active=True)
+    serializer_class = serializers.UserSerializer
+    parser_classes = [parsers.MultiPartParser, ]
+
     def get_permissions(self):
-        if self.action.__eq__('current_user'):
-            return  [permissions.IsAuthenticated()]
+        if self.action in ['current_user']:
+            return [permissions.IsAuthenticated()]
 
         return [permissions.AllowAny()]
 
+    @action(methods=['get', 'patch'], url_path='current-user', detail=False)
+    def current_user(self, request):
+        user = request.user
+        if request.method.__eq__('PATCH'):
+            for k, v in request.data.items():
+                setattr(user, k, v)
+            user.save()
 
-#Không gửi id gì lên cả nên k có detail
-    @action(methods=['get'], url_name='current_user',detail=False)
-    # request là đối tượng đã đc chứng thực
-    def current_user(self,request):
-        request.user
-        return  Response(serializers.UserSerializer(request.user).data)
+        return Response(serializers.UserSerializer(user).data)
 
+
+class CommentViewSet(viewsets.ViewSet, generics.DestroyAPIView, generics.UpdateAPIView):
+    queryset = Comment.objects.all()
+    serializer_class = serializers.CommentSerializer
+    permission_classes = [perms.CommentOwner]
 
 
