@@ -67,7 +67,7 @@ class LessonDetailSerializer(LessonSerializer):
             return lesson.like_set.filter(active =True).exists()
     class Meta:
         model = LessonSerializer.Meta.model
-        fields = LessonSerializer.Meta.fields + ['liked']
+        fields = LessonSerializer.Meta.fields + ['liked', 'tags','content']
 
 class AuthenticatedLessonDetailsSerializer(LessonDetailSerializer):
     liked = serializers.SerializerMethodField()
